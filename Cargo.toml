@@ -21,6 +21,7 @@ path = "bench.rs"
 [dependencies]
 byteorder = { version = "1.0.0", default-features = false }
 hashmap_core = { version = "0.1.5", optional = true }
+cfg-if = "0.1"
 
 [dev-dependencies]
 seahash = "3.0.5"
@@ -29,4 +30,4 @@ fnv = "1.0.5"
 [features]
 default = ["std"]
 std = ["byteorder/std"]
-core = ["hashmap_core"]
+hashmap-core = ["hashmap_core"]

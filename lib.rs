@@ -30,25 +30,32 @@
 
 // Include the `hashmap_core` crate if std is not available.
 #[allow(unused_extern_crates)]
-#[cfg(not(feature = "std"))]
+#[cfg(all(feature = "hashmap_core", not(feature = "std")))]
 extern crate hashmap_core;
 
-use std::collections::{HashMap, HashSet};
 use std::default::Default;
 use std::hash::{Hasher, Hash, BuildHasherDefault};
 use std::ops::BitXor;
 
 extern crate byteorder;
+#[macro_use]
+extern crate cfg_if;
 use byteorder::{ByteOrder, NativeEndian};
 
 /// A builder for default Fx hashers.
 pub type FxBuildHasher = BuildHasherDefault<FxHasher>;
 
-/// A `HashMap` using a default Fx hasher.
-pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
+cfg_if! {
+    if #[cfg(any(feature = "hashmap-core", feature = "std"))] {
+        use std::collections::{HashMap, HashSet};
 
-/// A `HashSet` using a default Fx hasher.
-pub type FxHashSet<V> = HashSet<V, FxBuildHasher>;
+        /// A `HashMap` using a default Fx hasher.
+        pub type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
+
+        /// A `HashSet` using a default Fx hasher.
+        pub type FxHashSet<V> = HashSet<V, FxBuildHasher>;
+    }
+}
 
 const ROTATE: u32 = 5;
 const SEED64: u64 = 0x517cc1b727220a95;
@@ -335,6 +342,8 @@ pub fn hash<T: Hash + ?Sized>(v: &T) -> usize {
 #[cfg(not(feature = "std"))]
 mod std {
     pub use core::*;
+
+    #[cfg(feature = "hashmap-core")]
     pub mod collections {
         pub use hashmap_core::{HashMap, HashSet};
         pub use hashmap_core::map as hash_map;
